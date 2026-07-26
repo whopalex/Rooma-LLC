@@ -1,6 +1,13 @@
 export function VslPlaceholder() {
   return (
-    <div className="relative mx-auto aspect-video w-full max-w-2xl overflow-hidden rounded-xl bg-black shadow-lg">
+    <div className="relative mx-auto aspect-[9/16] w-full max-w-[380px] overflow-hidden rounded-xl bg-black shadow-lg">
+      {/*
+        Reemplaza este bloque con tu embed de VTurb: pega el <script> y el
+        <div id="vid_..."> que te da VTurb directamente aquí dentro, en lugar
+        de este placeholder. VTurb suele ser responsive por sí solo, así que
+        puedes quitar el aspect-[9/16] del contenedor padre si su embed ya
+        trae su propio tamaño.
+      */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
         <button
           type="button"
@@ -11,7 +18,7 @@ export function VslPlaceholder() {
             <path d="M8 5v14l11-7L8 5Z" />
           </svg>
         </button>
-        <p className="text-sm">Video próximamente — reemplaza este bloque con tu VSL</p>
+        <p className="px-6 text-center text-xs">Pega aquí tu código de VTurb</p>
       </div>
     </div>
   );

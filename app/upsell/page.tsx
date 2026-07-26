@@ -7,15 +7,14 @@ const UPSELL_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_UPSELL_PLAN_ID ?? "";
 
 export default function UpsellPage() {
   return (
-    <div className="min-h-screen bg-zinc-100 px-4 py-10">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="mb-2 text-sm font-bold uppercase tracking-wide text-brand-dark">Espera — antes de irte</p>
-        <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">
-          Acelera tus resultados con el curso avanzado de Ejecución
+    <div className="min-h-screen bg-checkout-navy px-4 py-10">
+      <div className="mx-auto max-w-lg text-center">
+        <h1 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+          Tu compra ha sido completada.{" "}
+          <span className="text-checkout-green">Antes de que cierres, quiero ser honesta contigo sobre algo.</span>
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-black/70">
-          Mira este video de 3 minutos: te contamos cómo pasar de entender por qué procrastinas a ejecutar tus
-          proyectos sin fricción, todos los días.
+        <p className="mx-auto mt-4 max-w-md text-sm text-white/60">
+          Es algo que vimos pasar cientos de veces y sería un error no decírtelo. Mira este video hasta el final.
         </p>
       </div>
 
@@ -23,20 +22,19 @@ export default function UpsellPage() {
         <VslPlaceholder />
       </div>
 
-      <div className="mx-auto mt-8 max-w-md rounded-xl border border-black/10 bg-white p-6 text-center shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wide text-black/50">Oferta única — solo en esta página</p>
-        <p className="mt-2 text-2xl font-extrabold">
-          Curso de Ejecución Avanzada — <span className="text-brand-dark">$497 USD</span>
-        </p>
-        <p className="mt-1 text-sm text-black/60">Pago único. Acceso de por vida.</p>
+      <div className="mx-auto mt-8 max-w-md rounded-xl bg-white p-6 text-center shadow-xl">
+        <p className="text-lg font-bold text-checkout-dark">Ejecución Avanzada ⭐⭐⭐⭐⭐</p>
+        <p className="mt-2 text-3xl font-extrabold text-checkout-dark">$4.97</p>
+        <p className="text-xs text-checkout-gray">hoy — luego $17.00 USD/mes</p>
+
         <div className="mt-5">
           <ExpressUpsellButton planId={UPSELL_PLAN_ID} returnUrl={`${env.SITE_URL}/upsell/complete`} />
         </div>
       </div>
 
       <div className="mx-auto mt-6 max-w-md text-center">
-        <Link href="/thank-you" className="text-sm text-black/40 underline hover:text-black/60">
-          No gracias, continuar a mi acceso
+        <Link href="/thank-you" className="text-sm text-white/40 underline hover:text-white/60">
+          No, prefiero seguir por mi cuenta
         </Link>
       </div>
     </div>

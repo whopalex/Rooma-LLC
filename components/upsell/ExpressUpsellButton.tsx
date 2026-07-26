@@ -10,9 +10,14 @@ interface ExpressUpsellButtonProps {
 export function ExpressUpsellButton({ planId, returnUrl }: ExpressUpsellButtonProps) {
   return (
     <div className="mx-auto max-w-sm">
-      <WhopExpressCheckoutButton planId={planId} returnUrl={returnUrl} />
-      <p className="mt-3 text-center text-xs text-black/50">
-        Un clic — se cobra con la misma tarjeta que acabas de usar. Sin volver a escribir tus datos.
+      <WhopExpressCheckoutButton
+        planId={planId}
+        returnUrl={returnUrl}
+        theme="light"
+        themeOptions={{ accentColor: "green", highContrast: true }}
+      />
+      <p className="mt-3 text-center text-xs italic text-checkout-gray">
+        Al hacer clic aceptas los términos de esta suscripción mensual.
       </p>
     </div>
   );

@@ -46,6 +46,9 @@ interface ProductSpec {
   headline: string;
   description: string;
   initialPrice: number;
+  planType?: "one_time" | "renewal";
+  renewalPrice?: number;
+  billingPeriod?: number;
 }
 
 const PRODUCTS: ProductSpec[] = [
@@ -69,10 +72,13 @@ const PRODUCTS: ProductSpec[] = [
   {
     key: "UPSELL",
     title: "Curso de Ejecución Avanzada",
-    planTitle: "Pago único",
+    planTitle: "Suscripción mensual",
     headline: "Pasa de entender el bloqueo a ejecutar todos los días",
-    description: "Curso avanzado de ejecución, pago único, acceso de por vida.",
-    initialPrice: 497,
+    description: "Membresía mensual de ejecución avanzada — $4.97 el primer día, luego $17/mes.",
+    initialPrice: 4.97,
+    planType: "renewal",
+    renewalPrice: 17,
+    billingPeriod: 30,
   },
 ];
 
@@ -101,15 +107,20 @@ async function createProductAndPlan(spec: ProductSpec) {
   const plan = await client.plans.create({
     product_id: product.id,
     currency: "usd",
-    plan_type: "one_time",
+    plan_type: spec.planType ?? "one_time",
     initial_price: spec.initialPrice,
+    renewal_price: spec.renewalPrice,
+    billing_period: spec.billingPeriod,
     adaptive_pricing_enabled: true,
     payment_method_configuration: PAYMENT_METHOD_CONFIGURATION,
     visibility: "visible",
     release_method: "buy_now",
     title: spec.planTitle,
   } as any);
-  console.log(`Created plan: ${plan.id} ($${spec.initialPrice})`);
+  const priceLabel = spec.renewalPrice
+    ? `$${spec.initialPrice} then $${spec.renewalPrice}/${spec.billingPeriod}d`
+    : `$${spec.initialPrice}`;
+  console.log(`Created plan: ${plan.id} (${priceLabel})`);
 
   return { productId: product.id, planId: plan.id };
 }
