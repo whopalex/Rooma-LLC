@@ -1,5 +1,9 @@
 # NEUROPRODUCTIVO — Whop checkout funnel
 
+- **Live:** https://neuroproductivo-checkout.vercel.app
+- **Repo:** https://github.com/whopalex/Rooma-LLC
+- **Vercel project:** https://vercel.com/alex-whop/neuroproductivo-checkout
+
 Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt on Whop:
 
 1. **`/`** — main checkout. Order-bump checkbox ("Sesión 1 a 1 Diagnóstico de Bloqueo Mental", $27)
