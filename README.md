@@ -8,11 +8,16 @@ Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt o
 
 1. **`/`** — main checkout. Order-bump checkbox ("Sesión 1 a 1 Diagnóstico de Bloqueo Mental", $27)
    sits above a Whop embedded checkout for the $67 course. Checking the box swaps the embed to a
-   pre-created **combined plan ($94 = $67 + $27)** — a single one-time charge, adaptive pricing and
-   local payment methods (SPEI, OXXO, Nequi, PSE, card installments, etc.) all intact.
-2. **`/upsell`** — one-click upsell page (VSL placeholder + `WhopExpressCheckoutButton`) for a
-   one-time $497 course. This is a standalone Apple Pay / Google Pay / Whop Pay widget — it does
-   not depend on anything saved during the main checkout.
+   pre-created **combined plan ($94 = $67 + $27)** — a single one-time charge. The embed sets
+   `setupFutureUsage="off_session"` so the card is saved for the upsell page (client's explicit
+   choice — see the tradeoff note below, this hides SPEI/OXXO/Nequi/PSE on this page).
+2. **`/upsell`** — one-click upsell page (VSL slot for a VTurb embed + `WhopExpressCheckoutButton`),
+   styled to match the main checkout (same navy/white/green). Subscription: **$4.97 charged today,
+   then $17.00/month starting on day 30** (see the billing note below — this requires
+   `trial_period_days: 30` on the plan, not just `initial_price`/`renewal_price`).
+   On success, both the main checkout (`onComplete` in `CheckoutEmbedSection.tsx`) and the
+   redirect-based flow (`app/return/page.tsx`, for 3DS/SPEI/OXXO) send the buyer to `/upsell` —
+   this happens the same way regardless of whether the order bump was included.
 
 ## Already done
 
@@ -20,7 +25,7 @@ Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt o
   - `NEUROPRODUCTIVO` — $67 one-time (`WHOP_MAIN_PLAN_ID`)
   - `Sesión 1 a 1 Diagnóstico de Bloqueo Mental` — $27 one-time, standalone catalog listing (`WHOP_ORDER_BUMP_PLAN_ID`)
   - Combined course + order-bump plan — $94 one-time, used by the funnel when the bump is checked (`WHOP_COMBINED_PLAN_ID`)
-  - `Curso de Ejecución Avanzada` — $497 one-time (`WHOP_UPSELL_PLAN_ID`)
+  - `Curso de Ejecución Avanzada` — subscription, $4.97 today + $17/mo from day 30 (`WHOP_UPSELL_PLAN_ID`)
 - All plans have `adaptive_pricing_enabled: true` and `payment_method_configuration` with
   `card_installments_three/six/twelve` enabled + `include_platform_defaults: true` (so regional
   local payment methods surface automatically per buyer location).
@@ -28,17 +33,37 @@ Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt o
 - The app builds (`npm run build`) and has been smoke-tested end-to-end locally against the real
   Whop account: unchecked → `$67` plan, checked → `$94` combined plan, verified live in-browser.
 
-## Important: why local payment methods (SPEI, OXXO, etc.) might not show
+## Known tradeoff: one-click upsell vs. local payment methods on `/`
 
-Two independent things gate this — both worth checking if a buyer reports missing options:
+`setupFutureUsage="off_session"` is set on the main checkout embed (`CheckoutEmbedSection.tsx`).
+This is **required** to reliably save the buyer's card so the `/upsell` express button can charge
+it without asking for card details again — confirmed via Whop's own docs
+(`developer/guides/save-payment-methods.mdx`: "Save during checkout" → pass this prop).
 
-1. **Local payment methods depend on the buyer's real geography (IP-based), not the merchant's.**
-   Testing from a non-Mexican IP without a VPN will never show SPEI/OXXO, by Whop's design.
-2. **`setupFutureUsage: "off_session"` filters out non-reusable payment methods.** This project
-   does **not** set that prop on the main embed (it isn't needed — `WhopExpressCheckoutButton` on
-   `/upsell` is a fully independent widget, not dependent on a saved card from the main purchase).
-   If a future change adds `setupFutureUsage="off_session"` back to `CheckoutEmbedSection.tsx`,
-   expect SPEI/OXXO/Nequi/PSE to disappear again — that tradeoff is documented inline in the code.
+The cost: this same flag filters out payment methods that can't be saved for later off-session
+use — SPEI, OXXO, Nequi, PSE, etc. will **not** appear on the main checkout while this is set.
+Crypto still shows (it's currency-agnostic). This was an explicit choice the client made
+(prioritizing a guaranteed no-re-entry upsell over local payment methods on `/`) — if that
+changes, removing `setupFutureUsage` from the embed restores local payment methods immediately.
+
+Separately, two things gate local payment methods even when they're not explicitly filtered:
+1. They depend on the buyer's real geography (IP-based), not the merchant's — testing from a
+   non-Mexican IP without a VPN will never show SPEI/OXXO, by Whop's design.
+2. `adaptivePricing` only makes the buyer's local currency *available* — the code in
+   `CheckoutEmbedSection.tsx` actively switches to it via `setDisplayCurrency` as soon as it's
+   detected (`onCurrenciesAvailable`), since local payment methods require the checkout to
+   actually be running in that local currency, not just displaying a converted price.
+
+## Known gotcha: `initial_price` + `renewal_price` are ADDITIVE on the first charge
+
+Confirmed live in Whop's checkout UI: a plan with `initial_price: 4.97, renewal_price: 17,
+billing_period: 30` and **no** `trial_period_days` shows "Total due today: **$21.97**"
+(4.97 + 17 summed) — not $4.97 alone as the field names might suggest. To get "$4.97 today, then
+$17/mo starting in 30 days," you must also set `trial_period_days: 30` (equal to
+`billing_period`) — this defers the first *renewal* charge without being a real "free" trial,
+since `initial_price` is still charged immediately regardless of `trial_period_days`. Verified by
+screenshotting the actual Whop-hosted checkout page for a test plan before wiring it into
+production — see `scripts/setup-whop-products.ts`'s `UPSELL` entry for the working config.
 
 ## What you still need to do before going live
 

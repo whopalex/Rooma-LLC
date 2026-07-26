@@ -85,6 +85,7 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl }: CheckoutEmbe
           ref={checkoutControls}
           sessionId={sessionId}
           returnUrl={returnUrl}
+          setupFutureUsage="off_session"
           adaptivePricing
           onCurrenciesAvailable={handleCurrenciesAvailable}
           theme="light"

@@ -49,6 +49,7 @@ interface ProductSpec {
   planType?: "one_time" | "renewal";
   renewalPrice?: number;
   billingPeriod?: number;
+  trialPeriodDays?: number;
 }
 
 const PRODUCTS: ProductSpec[] = [
@@ -79,6 +80,12 @@ const PRODUCTS: ProductSpec[] = [
     planType: "renewal",
     renewalPrice: 17,
     billingPeriod: 30,
+    // Without trial_period_days, Whop's checkout shows "due today" as
+    // initial_price + renewal_price summed ($21.97) — confirmed live in the
+    // real checkout UI. Setting trial_period_days equal to billing_period is
+    // what makes "due today" show only initial_price ($4.97), with the first
+    // renewal_price charge deferred to day 30.
+    trialPeriodDays: 30,
   },
 ];
 
@@ -111,6 +118,7 @@ async function createProductAndPlan(spec: ProductSpec) {
     initial_price: spec.initialPrice,
     renewal_price: spec.renewalPrice,
     billing_period: spec.billingPeriod,
+    trial_period_days: spec.trialPeriodDays,
     adaptive_pricing_enabled: true,
     payment_method_configuration: PAYMENT_METHOD_CONFIGURATION,
     visibility: "visible",
