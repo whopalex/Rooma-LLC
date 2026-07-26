@@ -1,4 +1,3 @@
-import { GuaranteeBadges } from "@/components/checkout/GuaranteeBadges";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export default function ThankYouPage() {
@@ -48,10 +47,6 @@ export default function ThankYouPage() {
 
         <SiteFooter showPurchaseConsent={false} />
       </main>
-
-      <div className="bg-checkout-cream">
-        <GuaranteeBadges />
-      </div>
     </div>
   );
 }
