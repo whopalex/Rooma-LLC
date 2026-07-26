@@ -1,4 +1,8 @@
-export function SiteFooter() {
+interface SiteFooterProps {
+  showPurchaseConsent?: boolean;
+}
+
+export function SiteFooter({ showPurchaseConsent = true }: SiteFooterProps) {
   return (
     <footer className="mx-auto max-w-lg px-6 py-6 text-xs leading-relaxed text-white/40">
       <p>
@@ -12,11 +16,13 @@ export function SiteFooter() {
         </a>
       </p>
 
-      <p className="mt-4">
-        Al hacer clic en &ldquo;Comprar ahora&rdquo;, declaras que entiendes que este pedido se procesa en nombre de{" "}
-        <span className="text-white/60">MAJO Y RONALD</span> y aceptas los términos de compra. Los resultados
-        individuales pueden variar.
-      </p>
+      {showPurchaseConsent && (
+        <p className="mt-4">
+          Al hacer clic en &ldquo;Comprar ahora&rdquo;, declaras que entiendes que este pedido se procesa en nombre de{" "}
+          <span className="text-white/60">MAJO Y RONALD</span> y aceptas los términos de compra. Los resultados
+          individuales pueden variar.
+        </p>
+      )}
 
       <p className="mt-3">
         © {new Date().getFullYear()} NEUROPRODUCTIVO — Majo y Ronald. Todos los derechos reservados.
