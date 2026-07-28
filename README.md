@@ -21,7 +21,7 @@ Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt o
 
 ## Already done
 
-- 4 plans created in the client's live Whop account (`biz_TnOgGSdgPWnZAe`) via `npm run setup:whop`:
+- 4 plans created in the client's live Whop account (`biz_TnOgGSdgPWnZAe`) via `pnpm setup:whop`:
   - `NEUROPRODUCTIVO` — $67 one-time (`WHOP_MAIN_PLAN_ID`)
   - `Sesión 1 a 1 Diagnóstico de Bloqueo Mental` — $27 one-time, standalone catalog listing (`WHOP_ORDER_BUMP_PLAN_ID`)
   - Combined course + order-bump plan — $94 one-time, used by the funnel when the bump is checked (`WHOP_COMBINED_PLAN_ID`)
@@ -30,7 +30,7 @@ Replica of the Hotmart checkout funnel for the NEUROPRODUCTIVO course, rebuilt o
   `card_installments_three/six/twelve` enabled + `include_platform_defaults: true` (so regional
   local payment methods surface automatically per buyer location).
 - `.env.local` is filled in with the real API key, company ID, and all plan/product IDs.
-- The app builds (`npm run build`) and has been smoke-tested end-to-end locally against the real
+- The app builds (`pnpm build`) and has been smoke-tested end-to-end locally against the real
   Whop account: unchecked → `$67` plan, checked → `$94` combined plan, verified live in-browser.
 
 ## Known tradeoff: one-click upsell vs. local payment methods on `/`
@@ -88,7 +88,7 @@ this after deploying:
 ### 3. Deploy to Vercel
 
 ```bash
-npm install
+pnpm install
 vercel deploy
 ```
 
@@ -119,15 +119,15 @@ tunnel like ngrok/Cloudflare Tunnel for local testing).
 | `WHOP_API_KEY` | Dashboard → Developer → API Keys |
 | `WHOP_WEBHOOK_SECRET` | Dashboard → Developer → Webhooks (after creating the webhook — see step 2 above) |
 | `WHOP_COMPANY_ID` | Your dashboard URL: `whop.com/dashboard/<biz_xxx>/...` |
-| `WHOP_MAIN_PRODUCT_ID` / `WHOP_MAIN_PLAN_ID` | Printed by `npm run setup:whop` |
-| `WHOP_ORDER_BUMP_PRODUCT_ID` / `WHOP_ORDER_BUMP_PLAN_ID` | Printed by `npm run setup:whop` — standalone $27 listing |
-| `WHOP_COMBINED_PLAN_ID` | Printed by `npm run setup:whop` — the $94 plan actually used when the bump is checked |
-| `WHOP_UPSELL_PLAN_ID` / `NEXT_PUBLIC_WHOP_UPSELL_PLAN_ID` | Printed by `npm run setup:whop` |
+| `WHOP_MAIN_PRODUCT_ID` / `WHOP_MAIN_PLAN_ID` | Printed by `pnpm setup:whop` |
+| `WHOP_ORDER_BUMP_PRODUCT_ID` / `WHOP_ORDER_BUMP_PLAN_ID` | Printed by `pnpm setup:whop` — standalone $27 listing |
+| `WHOP_COMBINED_PLAN_ID` | Printed by `pnpm setup:whop` — the $94 plan actually used when the bump is checked |
+| `WHOP_UPSELL_PLAN_ID` / `NEXT_PUBLIC_WHOP_UPSELL_PLAN_ID` | Printed by `pnpm setup:whop` |
 | `NEXT_PUBLIC_SITE_URL` | Your deployed `https://` domain |
 
 ## Re-running the setup script
 
-`npm run setup:whop` skips creating a product if one with the same title already exists
+`pnpm setup:whop` skips creating a product if one with the same title already exists
 for your company, so it's safe to re-run after a partial failure — it won't create
 duplicates of products that already succeeded. It will, however, create a **new** plan each
 run (plans aren't deduped by title), so don't re-run casually once real IDs are in `.env.local`.

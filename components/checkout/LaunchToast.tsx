@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const AUTO_DISMISS_MS = 5000;
 
 export function LaunchToast() {
   const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), AUTO_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (!visible) return null;
 

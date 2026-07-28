@@ -6,6 +6,9 @@ import { LaunchToast } from "@/components/checkout/LaunchToast";
 import { GuaranteeBadges } from "@/components/checkout/GuaranteeBadges";
 import { ProductHeader } from "@/components/checkout/ProductHeader";
 import { CheckoutEmbedSection } from "@/components/checkout/CheckoutEmbedSection";
+import { CurrencyProvider } from "@/components/checkout/CurrencyContext";
+import { getFunnelPricing } from "@/lib/pricing";
+import { shouldSaveCard } from "@/lib/geo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +22,22 @@ async function createInitialSession() {
   return config.id;
 }
 
+// NOT wrapped in <Suspense>: WhopCheckoutEmbed renders its fallback during hydration
+// and swaps in the iframe afterwards, and that swap never happens when the component
+// arrives as streamed-in Suspense content — the embed stays stuck on "Cargando
+// checkout…" forever. Verified in-browser: with Suspense no iframe is ever added to
+// the DOM; without it the iframe mounts and measures immediately.
+async function CheckoutSection() {
+  const [initialSessionId, saveCard] = await Promise.all([createInitialSession(), shouldSaveCard()]);
+  return (
+    <CheckoutEmbedSection initialSessionId={initialSessionId} siteUrl={env.SITE_URL} saveCard={saveCard} />
+  );
+}
+
 export default async function HomePage() {
-  const initialSessionId = await createInitialSession();
+  // Prices are needed for the very first paint (they're in the header), and
+  // getFunnelPricing caches for 5 minutes, so awaiting them here is cheap.
+  const pricing = await getFunnelPricing();
 
   return (
     <div className="min-h-screen bg-checkout-navy">
@@ -29,8 +46,10 @@ export default async function HomePage() {
 
       <main className="px-4 py-8 sm:py-10">
         <div className="mx-auto max-w-lg overflow-hidden rounded-xl bg-white pt-0 shadow-xl">
-          <ProductHeader />
-          <CheckoutEmbedSection initialSessionId={initialSessionId} siteUrl={env.SITE_URL} />
+          <CurrencyProvider prices={pricing}>
+            <ProductHeader />
+            <CheckoutSection />
+          </CurrencyProvider>
         </div>
 
         <SiteFooter />

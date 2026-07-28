@@ -1,6 +1,6 @@
 /**
  * One-time provisioning script. Run manually with:
- *   npm run setup:whop
+ *   pnpm setup:whop
  *
  * Creates the products/plans this funnel needs and prints the resulting IDs
  * in .env-ready format — paste them into .env.local. Re-running this script

@@ -1,4 +1,7 @@
+"use client";
 /* eslint-disable @next/next/no-img-element */
+
+import { useCurrency } from "./CurrencyContext";
 
 interface OrderBumpCheckboxProps {
   checked: boolean;
@@ -12,6 +15,8 @@ const CHECKLIST = [
 ];
 
 export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps) {
+  const { formatPrice, prices } = useCurrency();
+
   return (
     <div className="mx-5 mb-5 rounded-lg border border-checkout-green/40 bg-checkout-green-light p-4 sm:mx-6">
       <p className="mb-3 text-sm font-bold text-checkout-dark">Aprovecha y compra:</p>
@@ -42,7 +47,7 @@ export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps)
         ideal para que empieces y no vuelvas a parar. 🚀
       </p>
 
-      <p className="mt-2 text-base font-extrabold text-checkout-dark">$27.00 USD</p>
+      <p className="mt-2 text-base font-extrabold text-checkout-dark">{formatPrice(prices.bump)}</p>
 
       <label className="mt-3 flex cursor-pointer items-center gap-2 border-t border-checkout-green/20 pt-3 text-sm font-semibold text-checkout-dark">
         <input

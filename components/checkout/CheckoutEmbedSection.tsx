@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { WhopCheckoutEmbed, useCheckoutEmbedControls, type WhopCheckoutCurrenciesAvailable } from "@whop/checkout/react";
+import {
+  WhopCheckoutEmbed,
+  useCheckoutEmbedControls,
+  type WhopCheckoutCurrenciesAvailable,
+  type WhopCheckoutCurrencyChanged,
+} from "@whop/checkout/react";
+import { useCurrency } from "./CurrencyContext";
 import { OrderBumpCheckbox } from "./OrderBumpCheckbox";
 import { OrderSummary } from "./OrderSummary";
 import { ProtectedBadge } from "./ProtectedBadge";
@@ -10,15 +16,18 @@ import { ProtectedBadge } from "./ProtectedBadge";
 interface CheckoutEmbedSectionProps {
   initialSessionId: string;
   siteUrl: string;
+  /** Decided server-side from the buyer's country — see lib/geo.ts. */
+  saveCard: boolean;
 }
 
-export function CheckoutEmbedSection({ initialSessionId, siteUrl }: CheckoutEmbedSectionProps) {
+export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: CheckoutEmbedSectionProps) {
   const router = useRouter();
   const [sessionId, setSessionId] = useState(initialSessionId);
   const [orderBump, setOrderBump] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkoutControls = useCheckoutEmbedControls();
+  const { setCurrency } = useCurrency();
   // Whop rejects non-https return URLs, which localhost never is — omit it in
   // that case so local dev still renders (deployed on Vercel this is always https).
   const returnUrl = siteUrl.startsWith("https://") ? `${siteUrl}/return` : undefined;
@@ -71,6 +80,15 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl }: CheckoutEmbe
     [checkoutControls]
   );
 
+  // Mirrors whatever currency the embed settled on (either the switch above or a
+  // manual change by the buyer) onto the prices we render around it.
+  const handleCurrencyChanged = useCallback(
+    (data: WhopCheckoutCurrencyChanged) => {
+      setCurrency({ currency: data.currency, exchangeRate: data.exchange_rate });
+    },
+    [setCurrency]
+  );
+
   return (
     <div className="pb-2">
       <OrderBumpCheckbox checked={orderBump} onChange={handleOrderBumpChange} />
@@ -81,13 +99,19 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl }: CheckoutEmbe
           </div>
         )}
         <WhopCheckoutEmbed
-          key={sessionId}
+          // setupFutureUsage lands in the iframe URL, so it's read at mount only —
+          // the key has to change with it for a switch to take effect.
+          key={`${sessionId}:${saveCard ? "save" : "local"}`}
           ref={checkoutControls}
           sessionId={sessionId}
           returnUrl={returnUrl}
-          setupFutureUsage="off_session"
+          // Set only where local payment methods don't exist, since it filters out
+          // every method that can't be charged off-session. Buyers who end up without
+          // a saved card get a full checkout on the upsell — see ExpressUpsellButton.
+          setupFutureUsage={saveCard ? "off_session" : undefined}
           adaptivePricing
           onCurrenciesAvailable={handleCurrenciesAvailable}
+          onCurrencyChanged={handleCurrencyChanged}
           theme="light"
           themeOptions={{ accentColor: "#00992B" }}
           onComplete={(_sessionOrPlanId: string, receiptId?: string) => {

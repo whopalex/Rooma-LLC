@@ -21,6 +21,9 @@ export const env = {
   get WHOP_MAIN_PLAN_ID() {
     return required("WHOP_MAIN_PLAN_ID");
   },
+  get WHOP_ORDER_BUMP_PLAN_ID() {
+    return required("WHOP_ORDER_BUMP_PLAN_ID");
+  },
   get WHOP_COMBINED_PLAN_ID() {
     return required("WHOP_COMBINED_PLAN_ID");
   },

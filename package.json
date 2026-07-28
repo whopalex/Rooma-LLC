@@ -2,6 +2,13 @@
   "name": "neuroproductivo-checkout",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,9 +17,9 @@
     "setup:whop": "tsx --env-file=.env.local scripts/setup-whop-products.ts"
   },
   "dependencies": {
-    "@whop/sdk": "^0.0.41",
-    "@whop/checkout": "^0.4.0",
     "@vercel/functions": "^1.5.0",
+    "@whop/checkout": "^0.4.0",
+    "@whop/sdk": "^0.0.41",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -22,6 +29,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "agentation": "^3.0.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",

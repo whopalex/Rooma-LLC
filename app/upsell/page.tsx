@@ -9,6 +9,11 @@ import { env } from "@/lib/env";
 const UPSELL_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_UPSELL_PLAN_ID ?? "";
 
 export default function UpsellPage() {
+  // Whop rejects non-https redirect URLs, and it's this URL that carries buyers back
+  // after a redirect-based payment. On localhost there's nothing valid to send, so the
+  // express button falls back to the site root rather than a URL Whop will refuse.
+  const returnUrl = env.SITE_URL.startsWith("https://") ? `${env.SITE_URL}/upsell/complete` : env.SITE_URL;
+
   return (
     <div className="min-h-screen bg-checkout-navy">
       <main className="px-4 py-8 sm:py-10">
@@ -33,7 +38,7 @@ export default function UpsellPage() {
             <p className="text-xs text-checkout-gray">hoy — luego $17.00 USD/mes</p>
 
             <div className="mt-5">
-              <ExpressUpsellButton planId={UPSELL_PLAN_ID} returnUrl={`${env.SITE_URL}/upsell/complete`} />
+              <ExpressUpsellButton planId={UPSELL_PLAN_ID} returnUrl={returnUrl} />
             </div>
           </div>
 
