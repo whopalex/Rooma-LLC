@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCurrency } from "./CurrencyContext";
+import { Price } from "./Price";
 
 interface OrderBumpCheckboxProps {
   checked: boolean;
@@ -15,7 +16,7 @@ const CHECKLIST = [
 ];
 
 export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps) {
-  const { formatPrice, prices } = useCurrency();
+  const { prices } = useCurrency();
 
   return (
     <div className="mx-5 mb-5 rounded-lg border border-checkout-green/40 bg-checkout-green-light p-4 sm:mx-6">
@@ -37,7 +38,7 @@ export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps)
           <p className="text-pretty text-sm font-semibold text-checkout-dark">
             Sesión 1 a 1 Diagnóstico de Bloqueo Mental (vía Meet)
           </p>
-          <p className="mt-1 text-base font-extrabold text-checkout-dark">{formatPrice(prices.bump)}</p>
+          <p className="mt-1 text-base font-extrabold text-checkout-dark"><Price amount={prices.bump} /></p>
         </div>
       </div>
 

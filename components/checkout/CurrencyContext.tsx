@@ -14,6 +14,9 @@ interface CurrencyState {
 
 interface CurrencyContextValue extends CurrencyState {
   prices: FunnelPricing;
+  /** True between "a currency switch is coming" and the embed confirming it. */
+  isConverting: boolean;
+  beginConversion: () => void;
   setCurrency: (next: CurrencyState) => void;
   /** Formats a base-currency amount in whatever currency the embed is charging. */
   formatPrice: (amount: number, options?: { withCode?: boolean }) => string;
@@ -23,12 +26,24 @@ const CurrencyContext = createContext<CurrencyContextValue | null>(null);
 
 export function CurrencyProvider({ prices, children }: { prices: FunnelPricing; children: ReactNode }) {
   const [state, setState] = useState<CurrencyState>({ currency: prices.currency, exchangeRate: null });
+  const [isConverting, setIsConverting] = useState(false);
 
   // Whop reports currencies lowercase ("cop", "usd"). Intl accepts either, but the
   // code we print next to the amount has to be uppercase, and the "did Intl already
   // render the code?" check below is case-sensitive — so normalize on the way in.
   const setCurrency = useCallback((next: CurrencyState) => {
     setState({ currency: next.currency.toUpperCase(), exchangeRate: next.exchangeRate });
+    setIsConverting(false);
+  }, []);
+
+  // Called once we know the embed is switching currencies but before it reports the
+  // new rate. Prices hide behind a placeholder for that window so nobody reads an
+  // amount in the wrong currency and watches it silently change under them.
+  const beginConversion = useCallback(() => {
+    setIsConverting(true);
+    // Never shimmer forever: if the embed goes quiet — which it does, it sometimes
+    // never emits the change event at all — fall back to showing the base price.
+    setTimeout(() => setIsConverting(false), 4000);
   }, []);
 
   const formatPrice = useCallback(
@@ -56,8 +71,8 @@ export function CurrencyProvider({ prices, children }: { prices: FunnelPricing; 
   );
 
   const value = useMemo<CurrencyContextValue>(
-    () => ({ ...state, prices, setCurrency, formatPrice }),
-    [state, prices, setCurrency, formatPrice]
+    () => ({ ...state, prices, isConverting, beginConversion, setCurrency, formatPrice }),
+    [state, prices, isConverting, beginConversion, setCurrency, formatPrice]
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

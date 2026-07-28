@@ -27,7 +27,8 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: Ch
   const [isSwitching, setIsSwitching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const checkoutControls = useCheckoutEmbedControls();
-  const { setCurrency } = useCurrency();
+  const { setCurrency, beginConversion } = useCurrency();
+  const [targetCurrency, setTargetCurrency] = useState<string | null>(null);
   // Whop rejects non-https return URLs, which localhost never is — omit it in
   // that case so local dev still renders (deployed on Vercel this is always https).
   const returnUrl = siteUrl.startsWith("https://") ? `${siteUrl}/return` : undefined;
@@ -71,14 +72,38 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: Ch
   // switch as soon as one is detected instead of leaving the buyer on USD.
   const handleCurrenciesAvailable = useCallback(
     (snapshot: WhopCheckoutCurrenciesAvailable) => {
-      if (snapshot.optional_currency && snapshot.current_currency !== snapshot.optional_currency) {
-        checkoutControls.current?.setDisplayCurrency(snapshot.optional_currency).catch((err) => {
-          console.error("[checkout] failed to switch to local currency", err);
-        });
-      }
+      if (!snapshot.optional_currency || snapshot.current_currency === snapshot.optional_currency) return;
+      beginConversion();
+      setTargetCurrency(snapshot.optional_currency);
     },
-    [checkoutControls]
+    [beginConversion]
   );
+
+  // The embed can report its available currencies before the controls ref is wired up,
+  // and `controls?.setDisplayCurrency(...)` would then silently do nothing — no error,
+  // no retry, prices just stay in the base currency. Retry until the ref exists.
+  useEffect(() => {
+    if (!targetCurrency) return;
+    let cancelled = false;
+    let attempts = 0;
+
+    const apply = () => {
+      if (cancelled) return;
+      const controls = checkoutControls.current;
+      if (!controls) {
+        if (attempts++ < 20) setTimeout(apply, 150);
+        return;
+      }
+      controls.setDisplayCurrency(targetCurrency).catch((err) => {
+        console.error("[checkout] failed to switch to local currency", err);
+      });
+    };
+
+    apply();
+    return () => {
+      cancelled = true;
+    };
+  }, [targetCurrency, checkoutControls]);
 
   // Mirrors whatever currency the embed settled on (either the switch above or a
   // manual change by the buyer) onto the prices we render around it.
