@@ -11,6 +11,8 @@ const config: Config = {
           blue: "#2B55A6", // countdown/urgency bar
           green: "#00992B", // primary CTA / discount accents
           "green-light": "#F0FBF5",
+          red: "#C0392B", // social-proof / urgency strip text
+          "red-light": "#FDF1F0",
           cream: "#F5F3EF", // guarantee-badges section background
           gray: "#7A7773", // secondary/muted text, sampled from the real checkout
           dark: "#0D0D0D", // primary text on the white card, sampled from the real checkout

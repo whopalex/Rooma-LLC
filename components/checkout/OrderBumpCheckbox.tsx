@@ -19,6 +19,12 @@ export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps)
 
   return (
     <div className="mx-5 mb-5 rounded-lg border border-checkout-green/40 bg-checkout-green-light p-4 sm:mx-6">
+      {/* Negative margins pull the strip out to the card's edges so it reads as a
+          banner rather than a boxed-in line, while the parent keeps its padding. */}
+      <p className="-mx-4 -mt-4 mb-3 rounded-t-lg bg-checkout-red-light px-4 py-2 text-center text-xs font-bold text-checkout-red">
+        El 92% de personas han tomado esta llamada
+      </p>
+
       <p className="mb-3 text-sm font-bold text-checkout-dark">Aprovecha y compra:</p>
 
       <div className="flex items-start gap-3">
@@ -28,26 +34,26 @@ export function OrderBumpCheckbox({ checked, onChange }: OrderBumpCheckboxProps)
           className="h-20 w-[4.4rem] shrink-0 rounded-md object-cover"
         />
         <div>
-          <p className="text-sm font-semibold text-checkout-dark">
+          <p className="text-pretty text-sm font-semibold text-checkout-dark">
             Sesión 1 a 1 Diagnóstico de Bloqueo Mental (vía Meet)
           </p>
-          <ul className="mt-1.5 space-y-1 text-xs text-checkout-dark/80">
-            {CHECKLIST.map((item) => (
-              <li key={item} className="flex gap-1.5">
-                <span className="text-checkout-green">✅</span>
-                {item}
-              </li>
-            ))}
-          </ul>
+          <p className="mt-1 text-base font-extrabold text-checkout-dark">{formatPrice(prices.bump)}</p>
         </div>
       </div>
+
+      <ul className="mt-3 space-y-1 text-xs text-checkout-dark/80">
+        {CHECKLIST.map((item) => (
+          <li key={item} className="flex gap-1.5">
+            <span className="text-checkout-green">✅</span>
+            {item}
+          </li>
+        ))}
+      </ul>
 
       <p className="mt-2 text-xs leading-relaxed text-checkout-gray">
         En 60 minutos descubrimos tu origen exacto y tu perfil real. Basados en tu perfil, te mostramos el camino
         ideal para que empieces y no vuelvas a parar. 🚀
       </p>
-
-      <p className="mt-2 text-base font-extrabold text-checkout-dark">{formatPrice(prices.bump)}</p>
 
       <label className="mt-3 flex cursor-pointer items-center gap-2 border-t border-checkout-green/20 pt-3 text-sm font-semibold text-checkout-dark">
         <input

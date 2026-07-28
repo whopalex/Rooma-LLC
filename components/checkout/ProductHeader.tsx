@@ -10,6 +10,9 @@ const PRODUCT_IMAGE_URL =
 
 export function ProductHeader() {
   const { formatPrice, prices } = useCurrency();
+  // Derived rather than hardcoded, so editing the plan price in Whop can't leave the
+  // banner advertising a discount that no longer matches what's charged.
+  const discountPercent = (((prices.compareAt - prices.main) / prices.compareAt) * 100).toFixed(2);
 
   return (
     <div className="border-b border-black/10">
@@ -20,6 +23,16 @@ export function ProductHeader() {
         <p className="mt-2 text-xl font-bold text-checkout-dark">{formatPrice(prices.main)}</p>
         <p className="mt-0.5 text-xs text-checkout-gray">Pago único — acceso inmediato</p>
         <p className="mt-1 text-xs text-checkout-gray">Precio de lanzamiento</p>
+
+        <div className="mt-4 rounded-lg border border-black/10 bg-white p-3">
+          <p className="text-sm font-bold text-checkout-dark">
+            Se ha aplicado un descuento del {discountPercent}%
+          </p>
+          <p className="mt-0.5 text-xs text-checkout-gray">
+            Antes <span className="line-through">{formatPrice(prices.compareAt, { withCode: false })}</span> — hoy
+            pagas {formatPrice(prices.main)}
+          </p>
+        </div>
       </div>
     </div>
   );
