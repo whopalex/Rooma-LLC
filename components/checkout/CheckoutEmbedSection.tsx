@@ -135,6 +135,7 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: Ch
           // a saved card get a full checkout on the upsell — see ExpressUpsellButton.
           setupFutureUsage={saveCard ? "off_session" : undefined}
           adaptivePricing
+          collectPhoneNumbers
           onCurrenciesAvailable={handleCurrenciesAvailable}
           onCurrencyChanged={handleCurrencyChanged}
           theme="light"

@@ -1,25 +1,34 @@
+"use client";
+
+import { useEffect } from "react";
+
+const PLAYER_ID = "vid-6a67b33bab208488526e053a";
+const PLAYER_SCRIPT =
+  "https://scripts.converteai.net/6e72aa35-e6ca-4729-84f3-3bf1d076221b/players/6a67b33bab208488526e053a/v4/player.js";
+
 export function VslPlaceholder() {
+  // VTurb ships a plain <script> injection, and that's what its player expects.
+  // Appending it ourselves — rather than via next/script — keeps that contract and
+  // makes the load order explicit: the custom element is in the DOM before the
+  // script that upgrades it runs.
+  useEffect(() => {
+    if (document.querySelector(`script[src="${PLAYER_SCRIPT}"]`)) return;
+    const script = document.createElement("script");
+    script.src = PLAYER_SCRIPT;
+    script.async = true;
+    document.head.appendChild(script);
+  }, []);
+
   return (
-    <div className="relative mx-auto aspect-[9/16] w-full max-w-[380px] overflow-hidden rounded-xl bg-black shadow-lg">
-      {/*
-        Reemplaza este bloque con tu embed de VTurb: pega el <script> y el
-        <div id="vid_..."> que te da VTurb directamente aquí dentro, en lugar
-        de este placeholder. VTurb suele ser responsive por sí solo, así que
-        puedes quitar el aspect-[9/16] del contenedor padre si su embed ya
-        trae su propio tamaño.
-      */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
-        <button
-          type="button"
-          aria-label="Reproducir video"
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/30 transition hover:bg-white/20"
-        >
-          <svg viewBox="0 0 24 24" className="h-7 w-7 fill-white">
-            <path d="M8 5v14l11-7L8 5Z" />
-          </svg>
-        </button>
-        <p className="px-6 text-center text-xs">Pega aquí tu código de VTurb</p>
-      </div>
+    <div className="mx-auto w-full max-w-[400px]">
+      {/* The placeholder div reserves a square via padding-top, so mounting the
+          player doesn't shift everything below it. */}
+      <vturb-smartplayer id={PLAYER_ID} style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: "400px" }}>
+        <div
+          className="vturb-player-placeholder"
+          style={{ position: "relative", width: "100%", padding: "100% 0 0", zIndex: 0, backgroundColor: "black" }}
+        />
+      </vturb-smartplayer>
     </div>
   );
 }
