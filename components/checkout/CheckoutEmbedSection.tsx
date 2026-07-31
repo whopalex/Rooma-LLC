@@ -18,9 +18,16 @@ interface CheckoutEmbedSectionProps {
   siteUrl: string;
   /** Decided server-side from the buyer's country — see lib/geo.ts. */
   saveCard: boolean;
+  /** A/B variant: "above" is the default layout, "below" is the /v2 test. */
+  orderBumpPosition?: "above" | "below";
 }
 
-export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: CheckoutEmbedSectionProps) {
+export function CheckoutEmbedSection({
+  initialSessionId,
+  siteUrl,
+  saveCard,
+  orderBumpPosition = "above",
+}: CheckoutEmbedSectionProps) {
   const router = useRouter();
   const [sessionId, setSessionId] = useState(initialSessionId);
   const [orderBump, setOrderBump] = useState(false);
@@ -114,9 +121,11 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: Ch
     [setCurrency]
   );
 
+  const orderBumpNode = <OrderBumpCheckbox checked={orderBump} onChange={handleOrderBumpChange} />;
+
   return (
     <div className="pb-2">
-      <OrderBumpCheckbox checked={orderBump} onChange={handleOrderBumpChange} />
+      {orderBumpPosition === "above" && orderBumpNode}
       <div className="relative mx-5 mb-5 min-h-[280px] sm:mx-6">
         {isSwitching && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/70 text-xs font-medium text-black/50">
@@ -146,6 +155,7 @@ export function CheckoutEmbedSection({ initialSessionId, siteUrl, saveCard }: Ch
           fallback={<div className="p-8 text-center text-sm text-black/40">Cargando checkout…</div>}
         />
       </div>
+      {orderBumpPosition === "below" && orderBumpNode}
       <OrderSummary orderBump={orderBump} />
       <ProtectedBadge />
     </div>
